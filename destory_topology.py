@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from comman import *
+from common import *
 
 
 # destroy the specify topology
