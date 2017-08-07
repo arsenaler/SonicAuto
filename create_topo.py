@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from comman import *
+from common import *
 import os
 
 def create_topology(user, password, topology_file, UTM_ID):
