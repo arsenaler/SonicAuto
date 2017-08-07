@@ -222,7 +222,7 @@ def get_topology_file1(file_dir, file_name):
     lst = []
     for parent, dirnames, filenames in os.walk(file_dir):
         for filename in filenames:
-            if file == filename:
+            if file_name == filename:
 
                 print 'filename is: '+ filename
                 path = os.path.join(parent, filename)
