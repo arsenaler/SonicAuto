@@ -8,6 +8,7 @@ import getpass
 from pymongo import MongoClient
 from cStringIO import StringIO
 import configparser
+import os
 
 header1 = {
             'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0',
@@ -192,10 +193,42 @@ def get_topology_ip(file_name, UTM_ID):
                         ip = t[i].split(";")[1].split("&")[0]
     return ip
 
-'''
-def get_utm_ip_map(file_name,UTM_ID):
-    utm_list = get_utm_list(file_name)
-    ip_list = get_topology_iplist(file_name)
-    map_dict = dict(zip(utm_list, ip_list))
-    return map_dict
-'''
+
+# get all the file under the file_dir
+def get_all_file(file_dir, all_file):
+    lst = os.listdir(file_dir)
+    for filename in lst:
+        filepath = os.path.join(file_dir, filename)
+        if os.path.isdir(filepath):
+            get_all_file(filepath, all_file)
+        else:
+            all_file.append(filepath)
+    return all_file
+
+
+# get the path of  the file_name
+def get_topology_file(file_dir, all_file, file_name):
+    all_file1 = get_all_file(file_dir, all_file)
+    l2 = [i for i in all_file1 if file_name.split('.')[1] in i]
+    for file in l2:
+        if file_name in file:
+            return file
+        else:
+            pass
+
+
+# get the path of  the file_name
+def get_topology_file1(file_dir, file_name):
+    lst = []
+    for parent, dirnames, filenames in os.walk(file_dir):
+        for filename in filenames:
+            if file == filename:
+
+                print 'filename is: '+ filename
+                path = os.path.join(parent, filename)
+                if 'SonicOS'and '6.5' in path:
+                    return path
+                else:
+                    pass
+        #  print 'full path is: ' + os.path.join(parent, filename)
+
