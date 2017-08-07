@@ -1,0 +1,155 @@
+{
+    "nodes": [
+        {
+            "name": "UTM",
+            "platform": ["GLX"],
+            "topology_resource_id":418,
+            "dut": true,
+            "physical": true,
+            "team": "UTM",
+            "attributes": ["testuse=dut"],
+            "interfaces": [
+                {
+                    "name": "X0",
+                    "remote_node": "PC1",
+                    "remote_interface": "eth0"
+                },
+                {
+                    "name": "X1",
+                    "network": "13.0.0.0/24"
+                },
+                {
+                    "name": "X2",
+                    "network": "172.16.0.0/24"
+                },
+                {
+                    "name": "X3",
+                    "remote_node": "PC1",
+                    "remote_interface": "eth3",
+                    "network": "172.16.1.0/24"
+                },
+                {
+                    "name":"X4:1",
+                    "dhcp":false,
+                    "ip": "172.16.2.5",
+                     "network":"172.16.2.0/24",
+                    "remote_node":"PC1",
+                    "remote_interface":"eth4",
+                    "vlan_type": "tag"
+                }
+            ]
+        },
+        {
+            "name": "PC1",
+            "platform": "Centos6.6_Perl5.10.1_x86_TBPC1",
+            "interfaces": [
+                {
+                    "name": "eth0",
+                    "remote_node": "UTM",
+                    "remote_interface": "X0"
+                },
+                {
+                    "name": "eth1",
+                    "share_network": {
+                        "node": "UTM",
+                        "interface": "X1"
+                    }
+                },
+                {
+                    "name": "eth2",
+                    "share_network": {
+                        "node": "UTM",
+                        "interface": "X2"
+                    }
+                },
+                {
+                    "name": "eth3",
+                    "remote_node": "UTM",
+                    "remote_interface": "X3"
+                },
+                {
+                    "name": "eth4",
+                    "remote_node": "UTM",
+                    "remote_interface": "X4:1"
+                },
+                {
+                    "name": "eth5"
+                },
+                {
+                    "name": "eth6",
+                     "default_gw": true
+                }
+            ]
+        },
+        {
+            "name": "PC2",
+            "platform": "ubuntu14_sslserver",
+            "interfaces": [
+                {
+                    "name": "eth0",
+                    "share_network": {
+                        "node": "PC1",
+                        "interface": "eth5"
+                    }
+                },
+                {
+                    "name": "eth1",
+                    "share_network": {
+                        "node": "UTM",
+                        "interface": "X1"
+                    },
+                     "default_gw": true
+                },
+                {
+                    "name": "eth2",
+                    "share_network": {
+                        "node": "UTM",
+                        "interface": "X2"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "PC3",
+            "platform": "fedora23",
+            "interfaces": [
+                {
+                    "name": "eth0",
+                    "share_network": {
+                        "node": "PC1",
+                        "interface": "eth5"
+                    }
+                },
+                {
+                    "name": "eth1",
+                    "share_network": {
+                        "node": "UTM",
+                        "interface": "X2"
+                    },
+                     "default_gw": true
+                }
+            ]
+        },
+        {
+            "name": "PC4",
+            "platform": "Centos6.6_Perl5.10.1_x86_TBPC1",
+            "interfaces": [
+                {
+                    "name": "eth0",
+                    "share_network": {
+                        "node": "PC1",
+                        "interface": "eth5"
+                    }
+                },
+                {
+                    "name": "eth1",
+                    "share_network": {
+                        "node": "UTM",
+                        "interface": "X2"
+                    },
+                     "default_gw": true
+                }
+            ]
+        }
+    ]
+}
