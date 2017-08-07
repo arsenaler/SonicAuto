@@ -4,7 +4,7 @@
 # we will ssh to topology ip and excute the script to testting
 
 
-from comman import *
+from common import *
 from ssh import *
 import requests
 import os
