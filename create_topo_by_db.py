@@ -19,14 +19,14 @@ def create_topology(user, password, topology_file, UTM_ID):
             utm_list1 = get_utm_list('after_create.txt')
             for i in range(0, len(utm_list1)):
                 if UTM_ID == utm_list1[i]:
-                    print 'create topology successful'
+                    logger.info('create topology successful')
                     # add the topology creater and UTM_ID to database
                     save_user_to_db(user, UTM_ID)
                 else:
-                    print 'create topology fail'
+                    logger.info('create topology fail')
             os.popen("rm after_create.txt")
     else:
-        print "please insure the file has the correct UTM ID"
+        logger.info("please insure the file has the correct UTM ID")
 
 
 def main():

@@ -2,7 +2,7 @@
 #!/usr/bin/python
 import re
 import requests
-import logging
+from log import *
 import argparse
 import getpass
 from pymongo import MongoClient
@@ -62,28 +62,29 @@ def save_file(session, file_name):
         file1= open(file_name,'w')
         file1.write(content)
     except Exception as e:
-        print('unexpect error happen')
+        logger.info('unexpect error happen')
     finally:
         file1.close()
 
 
 def get_token(session, file_name):
-    #get the token
+    # get the token
     with open(file_name, 'r') as f:
         for line in f:
             if "csrf-token" in line:
                 token = line.split('"')[1]
     return token
 
+
 def get_utm_list(file_name):
     utm_list = []
     with open(file_name, 'r') as f:
         for line in f:
-            if  "topology_resource_id" and 'team=UTM' in line:
+            if "topology_resource_id" and 'team=UTM' in line:
                 utm = line.split(":")[4].split(',')[0]
-                print utm
                 utm_list.append(utm)
     return utm_list
+
 
 def get_topologyID_list(file_name):
     topology_id_list = []
@@ -94,11 +95,13 @@ def get_topologyID_list(file_name):
                 topology_id_list.append(topology_id)
     return topology_id_list
 
+
 def get_utm_topology_map(file_name):
     utm_list = get_utm_list(file_name)
     topology_id_list = get_topologyID_list(file_name)
     dict1 = dict(zip(utm_list, topology_id_list))
     return dict1
+
 
 def post_topology_data(session, topology_file):
     header1 = {
@@ -118,6 +121,7 @@ def post_topology_data(session, topology_file):
                                 }
     session.post(post_url, data=post_data, headers=header1)
 
+
 def save_user_to_db(user, UTM_ID):
     client = MongoClient('10.8.71.164', 27017)
     db_name = "topoloy_data"
@@ -126,17 +130,17 @@ def save_user_to_db(user, UTM_ID):
     posts = db.posts
     post = {"user" : user, 'UTM_ID': UTM_ID}
     post_id = posts.insert(post)
-    print post_id
-    print "dddddddddd"
     print posts.find_one({"user" : user})
     test = posts.find_one({"user" : 'wdong'})
-    print test.get('UTM_ID')
+    logger.info('the utm id is %s'%test.get('UTM_ID'))
+
 
 def login(session, user, password):
     base_url = 'http://10.203.26.61'
     login_infor = {'email': user, "password": password, "location": "BeiJing"}
     login_url = base_url+"/sessions/create"
     r = session.post(login_url, login_infor)
+
 
 def create_topology(user, password, topology_file, UTM_ID):
     if compare(topology_file, UTM_ID):
@@ -154,15 +158,15 @@ def create_topology(user, password, topology_file, UTM_ID):
             utm_list1 = get_utm_list('after_create.txt')
             for i in range(0, len(utm_list1)):
                 if UTM_ID == utm_list1[i]:
-                    print 'create topology successful'
+                    logger.info('create topology successful')
                     # add the topology creater and UTM_ID to database
-                    save_user_to_db(user, UTM_ID)
+                    #save_user_to_db(user, UTM_ID)
                 else:
-                    print 'create topology fail'
+                    logger.info('create topology fail')
         else:
             for i in range(0, len(utm_list)):
                 if UTM_ID == utm_list[i]:
-                    print "the UTM was used by others, please ask others detroy the topology"
+                    logger.info("the UTM was used by others, please ask others detroy the topology")
                 else:
                     # create topology
                     post_topology_data(session, topology_file)
@@ -171,15 +175,15 @@ def create_topology(user, password, topology_file, UTM_ID):
                     for i in range(0, len(utm_list1)):
                         if UTM_ID == utm_list1[i]:
                             print 'create topology successful'
-                            logging.info( 'create topology successful')
+                            logger.info( 'create topology successful')
                             # add the topology creater and UTM_ID to database
-                            save_user_to_db(user, UTM_ID)
+                           # save_user_to_db(user, UTM_ID)
                         else:
                             print 'create topology fail'
-                            logging.inf( 'create topology fail')
+                            logger.info( 'create topology fail')
 
     else:
-        print "please insure the file has the correct UTM ID"
+        logger.info("please insure the file has the correct UTM ID")
 
 
 def main():
