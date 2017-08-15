@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 import re
 import requests
-import logging
 import argparse
 import getpass
 from pymongo import MongoClient
 from cStringIO import StringIO
 import configparser
 import os
+from log import *
 
 header1 = {
             'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0',
@@ -129,6 +129,7 @@ def get_token(session, file_name):
         for line in f:
             if "csrf-token" in line:
                 token = line.split('"')[1]
+    logger.info('the token is %s'%token)
     return token
 
 
@@ -138,8 +139,12 @@ def get_utm_list(file_name):
     with open(file_name, 'r') as f:
         for line in f:
             if  "topology_resource_id" and 'team=UTM' in line:
-                utm = line.split(":")[4].split(',')[0]
-                utm_list.append(utm)
+
+                for i in  line.split(","):
+                    if "topology_resource_id" in i:
+                        id= i.split("topology_resource_id")[1].split(":")[1]
+                        utm_list.append(id)
+    logger.info('utm_list is :%s'%utm_list)
     return utm_list
 
 
@@ -151,6 +156,7 @@ def get_topologyID_list(file_name):
             if 'Destroy' in line:
                 topology_id= line.split('"')[3].strip('/ ').split('/')[1]
                 topology_id_list.append(topology_id)
+    logger.info('topology_id_list is %s'%topology_id)
     return topology_id_list
 
 
@@ -159,6 +165,7 @@ def get_utm_topology_map(file_name):
     utm_list = get_utm_list(file_name)
     topology_id_list = get_topologyID_list(file_name)
     dict1 = dict(zip(utm_list, topology_id_list))
+    logger.info('Now the utm_topology_map is %s '%dict1)
     return dict1
 
 
@@ -171,6 +178,7 @@ def post_topology_data(session, topology_file):
                 'topology_definition': topology_data,
                 'commit': 'Create Topology'
                 }
+    logger.info('now we will post the topology data')
     session.post(post_url, data=post_data, headers=header1)
 
 
@@ -179,6 +187,7 @@ def login(session, user, password):
     base_url = 'http://10.203.26.61'
     login_infor = {'email': user, "password": password, "location": "BeiJing"}
     login_url = base_url+"/sessions/create"
+    logger.info('Now we will login to the openstack')
     r = session.post(login_url, login_infor)
 
 
@@ -191,10 +200,11 @@ def get_topology_ip(file_name, UTM_ID):
                 for i in range(0, len(t)):
                     if "10.6.72" in t[i]:
                         ip = t[i].split(";")[1].split("&")[0]
+    logger.info('now we get the topology ip:%s'%ip)
     return ip
 
 
-# get all the file under the file_dir
+# get all  file under the file_dir
 def get_all_file(file_dir, all_file):
     lst = os.listdir(file_dir)
     for filename in lst:
@@ -206,7 +216,7 @@ def get_all_file(file_dir, all_file):
     return all_file
 
 
-# get the path of  the file_name
+# get the path of  the topology file name
 def get_topology_file(file_dir, all_file, file_name):
     all_file1 = get_all_file(file_dir, all_file)
     l2 = [i for i in all_file1 if file_name.split('.')[1] in i]
@@ -217,7 +227,7 @@ def get_topology_file(file_dir, all_file, file_name):
             pass
 
 
-# get the path of  the file_name
+# get the path of  the topology file name
 def get_topology_file1(file_dir, file_name):
     lst = []
     for parent, dirnames, filenames in os.walk(file_dir):
