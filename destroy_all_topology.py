@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from common import *
 import os
+from log import *
 
 
 # delete all the topologies which was created by myself
@@ -12,7 +13,7 @@ def destroy_topology(user, password):
     save_file(session, 'topology_html.txt')
     token = get_token(session, 'topology_html.txt')
     topologyID_UTM_map = get_utm_topology_map('topology_html.txt')
-    print 'now we will delete all the topology'
+    logger.info('now we will delete all the topology')
     for key, value in topologyID_UTM_map.iteritems():
         post_url = base_url + "/topologies/" + value
         post_data = {'_method':'delete', "authenticity_token": token}
