@@ -8,6 +8,7 @@ import os
 
 
 # destroy the specify topology
+@use_logging(level='info')
 def destroy__specify_topology(user, password, utm):
     base_url = 'http://10.203.26.61'
     session = requests.Session()
@@ -33,7 +34,10 @@ def destroy__specify_topology(user, password, utm):
 
 def main():
     args = get_args()
-    os.popen("rm *.txt")
+    if os.path.isfile('*.txt'):
+        os.system('rm -rf *.txt')
+    else:
+        pass
     destroy__specify_topology(args.user, args.password, args.UTM_ID)
     os.popen("rm *.txt")
 # start this thing

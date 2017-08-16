@@ -53,7 +53,10 @@ def create_topology(user, password, topology_file, UTM_ID):
 
 def main():
     args = get_args()
-    os.popen("rm *.txt")
+    if os.path.isfile('*.txt'):
+        os.system('rm -rf *.txt')
+    else:
+        pass
     create_topology(args.user, args.password, args.topology_file, args.UTM_ID)
     os.popen("rm *.txt")
 

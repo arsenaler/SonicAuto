@@ -9,6 +9,7 @@ from cStringIO import StringIO
 import configparser
 import os
 from log import *
+import ssh
 
 header1 = {
             'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0',
@@ -56,6 +57,15 @@ def get_args():
         args.password = getpass.getpass(
             prompt='Enter password:')
     return args
+
+
+# ssh to DB vm and start or restart DB
+@use_logging(level='info')
+def start_mongodb(server_ip, user, pwd):
+#    test_ssh = ssh.test_ssh()
+    ssh.test_connect(server_ip, 22, user, pwd)
+    ssh.test_cmd('/etc/init.d/mongodb start')
+    ssh.test_close()
 
 
 # save the user to db, if user create the topology

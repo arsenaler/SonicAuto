@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import logging
 import os
 
@@ -10,8 +11,7 @@ handler.setFormatter(formatter)
 handler.setLevel(logging.INFO)
 logger.addHandler(handler)
 
-
-file_handle = logging.FileHandler('log.txt')
+file_handle = logging.FileHandler('log.json')
 file_handle.setLevel(logging.INFO)
 formatter2=logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s\n')
 file_handle.setFormatter(formatter2)

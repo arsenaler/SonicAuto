@@ -24,7 +24,10 @@ def main():
     args = get_args()
     session = requests.session()
     login(session, args.user, args.password)
-    os.system('rm -f topology_html.txt')
+    if os.path.isfile('*.txt'):
+        os.system('rm -rf *.txt')
+    else:
+        pass
     save_file(session, 'topology_html.txt')
     ip = get_topology_ip('topology_html.txt' , args.UTM_ID)
     logger.info("we will ssh to %s to excute script" %ip)

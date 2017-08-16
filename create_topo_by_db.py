@@ -4,6 +4,7 @@ from common import *
 import os
 
 
+@use_logging(level='info')
 def create_topology(user, password, topology_file, UTM_ID):
 
     if compare(topology_file, UTM_ID):
@@ -13,7 +14,7 @@ def create_topology(user, password, topology_file, UTM_ID):
         if verify_utm_in_db(UTM_ID):
             pass
         else:
-            post_topology_data(session, topology_file)
+            logger.info('the utm was not used by others')
             post_topology_data(session, topology_file)
             save_file(session, 'after_create.txt')
             utm_list1 = get_utm_list('after_create.txt')
@@ -24,13 +25,18 @@ def create_topology(user, password, topology_file, UTM_ID):
                     save_user_to_db(user, UTM_ID)
                 else:
                     logger.info('create topology fail')
-            os.popen("rm after_create.txt")
+            os.popen("rm *.txt")
     else:
         logger.info("please insure the file has the correct UTM ID")
 
 
 def main():
+    start_mongodb('10.8.71.164', 22, 'root', 'password')
     args = get_args()
+    if os.path.isfile('*.txt'):
+        os.system('rm -rf *.txt')
+    else:
+        pass
     create_topology(args.user, args.password, args.topology_file, args.UTM_ID)
 
 
