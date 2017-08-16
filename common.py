@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import re
+import re, time
 import requests
 import argparse
 import getpass
@@ -20,6 +20,7 @@ header1 = {
         }
 
 
+@use_logging(level='info')
 def get_args():
     parser = argparse.ArgumentParser(
         description='Arguments for talking to openstack deploy topology')
@@ -58,6 +59,7 @@ def get_args():
 
 
 # save the user to db, if user create the topology
+@use_logging(level='info')
 def connect_db():
     client = MongoClient('10.8.71.164', 27017)
     db_name = "topoloy_data"
@@ -66,23 +68,27 @@ def connect_db():
     return topology_info
 
 
+@use_logging(level='info')
 def save_user_to_db(user, UTM_ID):
     topology_info = connect_db()
     data = {"user" : user, "UTM_ID" : UTM_ID}
     topology_info.insert(data)
 
 
+@use_logging(level='info')
 def del_user_from_db(UTM_ID):
     topology_info = connect_db()
     topology_info.remove({'UTM_ID' : UTM_ID})
 
 
+@use_logging(level='info')
 def del_utm_from_db(user):
     topology_info = connect_db()
     topology_info.remove({'user' : user})
 
 
 # verify the UTM whether in the DB
+@use_logging(level='info')
 def verify_utm_in_db(UTM_ID):
     topology_info = connect_db()
     utm_list = []
@@ -100,6 +106,7 @@ def verify_utm_in_db(UTM_ID):
 
 
 # verify topology_file whether has UTM
+@use_logging(level='info')
 def compare(file, UTM_ID):
     with open(file, 'r') as f:
         for line in f:
@@ -108,6 +115,7 @@ def compare(file, UTM_ID):
 
 
 # save the html content
+@use_logging(level='info')
 def save_file(session, file_name):
     base_url = 'http://10.203.26.61'
     get_url = base_url + "/topologies"
@@ -123,6 +131,7 @@ def save_file(session, file_name):
 
 
 # get the token from html content
+@use_logging(level='info')
 def get_token(session, file_name):
     # get the token
     with open(file_name, 'r') as f:
@@ -134,6 +143,7 @@ def get_token(session, file_name):
 
 
 # get all the utm id who was used by topology
+@use_logging(level='info')
 def get_utm_list(file_name):
     utm_list = []
     with open(file_name, 'r') as f:
@@ -149,6 +159,7 @@ def get_utm_list(file_name):
 
 
 # get topology ID , if we destroy the topology, we will use it
+@use_logging(level='info')
 def get_topologyID_list(file_name):
     topology_id_list = []
     with open(file_name, 'r') as f:
@@ -161,6 +172,7 @@ def get_topologyID_list(file_name):
 
 
 # map the utm and topology id, we can used it when we delete the topology
+@use_logging(level='info')
 def get_utm_topology_map(file_name):
     utm_list = get_utm_list(file_name)
     topology_id_list = get_topologyID_list(file_name)
@@ -170,6 +182,7 @@ def get_utm_topology_map(file_name):
 
 
 # when create the topology, post the data
+@use_logging(level='info')
 def post_topology_data(session, topology_file):
     base_url = 'http://10.203.26.61'
     post_url = base_url + "/topologies"
@@ -177,12 +190,13 @@ def post_topology_data(session, topology_file):
     post_data = {'location': 'BJ',
                 'topology_definition': topology_data,
                 'commit': 'Create Topology'
-                }
-    logger.info('now we will post the topology data')
+                 }
     session.post(post_url, data=post_data, headers=header1)
+    time.sleep(2)
 
 
 # login to the server to make topology
+@use_logging(level='info')
 def login(session, user, password):
     base_url = 'http://10.203.26.61'
     login_infor = {'email': user, "password": password, "location": "BeiJing"}
@@ -192,6 +206,7 @@ def login(session, user, password):
 
 
 # get the topology ip, usually it's PC1's ip, we will use it when we excute the testing script by SSH
+@use_logging(level='info')
 def get_topology_ip(file_name, UTM_ID):
     with open(file_name, 'r') as f:
         for line in f:
@@ -205,6 +220,7 @@ def get_topology_ip(file_name, UTM_ID):
 
 
 # get all  file under the file_dir
+@use_logging(level='info')
 def get_all_file(file_dir, all_file):
     lst = os.listdir(file_dir)
     for filename in lst:
@@ -217,6 +233,7 @@ def get_all_file(file_dir, all_file):
 
 
 # get the path of  the topology file name
+@use_logging(level='info')
 def get_topology_file(file_dir, all_file, file_name):
     all_file1 = get_all_file(file_dir, all_file)
     l2 = [i for i in all_file1 if file_name.split('.')[1] in i]
@@ -228,6 +245,7 @@ def get_topology_file(file_dir, all_file, file_name):
 
 
 # get the path of  the topology file name
+@use_logging(level='info')
 def get_topology_file1(file_dir, file_name):
     lst = []
     for parent, dirnames, filenames in os.walk(file_dir):
