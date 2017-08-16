@@ -5,6 +5,7 @@ import os
 from log import *
 
 
+@use_logging(level='info')
 def create_topology(user, password, topology_file, UTM_ID):
 
     if compare(topology_file, UTM_ID):
@@ -22,7 +23,6 @@ def create_topology(user, password, topology_file, UTM_ID):
             post_topology_data(session, topology_file)
             save_file(session, 'after_create.txt')
             utm_list1 = get_utm_list('after_create.txt')
-            logger.info('now the UTM-list is %s'%utm_list1)
             for i in range(0, len(utm_list1)):
                 if UTM_ID == utm_list1[i]:
                     logger.info('create topology successful')
