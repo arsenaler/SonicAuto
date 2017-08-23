@@ -79,9 +79,13 @@ def connect_db():
 
 
 @use_logging(level='info')
-def save_user_to_db(user, UTM_ID):
+def save_user_to_db(file_name, user, UTM_ID):
     topology_info = connect_db()
-    data = {"user" : user, "UTM_ID" : UTM_ID}
+    utm_topology_map = get_map_utm_with_testbed(file_name)
+    utm_testbed_map = get_map_utm_with_testbed(file_name)
+    topology = utm_topology_map.get(UTM_ID, None)
+    testbed = utm_testbed_map(UTM_ID,None)
+    data = {"user": user, "UTM_ID": UTM_ID, "topology_id": topology, 'testbed_id': testbed}
     topology_info.insert(data)
 
 
@@ -168,6 +172,15 @@ def get_utm_list(file_name):
     return utm_list
 
 
+# get test_bed id
+@use_logging(level='info')
+def get_test_bed_id(file_name):
+     with open(file_name, 'r') as f:
+        for line in f:
+            if 'VTP' in line:
+                if len(line)<20:
+                    return line.strip(' ')
+
 # get topology ID , if we destroy the topology, we will use it
 @use_logging(level='info')
 def get_topologyID_list(file_name):
@@ -177,7 +190,7 @@ def get_topologyID_list(file_name):
             if 'Destroy' in line:
                 topology_id= line.split('"')[3].strip('/ ').split('/')[1]
                 topology_id_list.append(topology_id)
-    logger.info('topology_id_list is %s'%topology_id)
+    logger.info('topology_id_list is %s'%topology_id_list)
     return topology_id_list
 
 
@@ -197,11 +210,13 @@ def post_topology_data(session, topology_file):
     base_url = 'http://10.203.26.61'
     post_url = base_url + "/topologies"
     topology_data = open(topology_file,'r').read()
+    time.sleep(1)
     post_data = {'location': 'BJ',
                 'topology_definition': topology_data,
                 'commit': 'Create Topology'
                  }
-    session.post(post_url, data=post_data, headers=header1)
+    r=session.post(post_url, data=post_data, headers=header1)
+    session.get(post_url)
     time.sleep(2)
 
 
@@ -213,6 +228,8 @@ def login(session, user, password):
     login_url = base_url+"/sessions/create"
     logger.info('Now we will login to the openstack')
     r = session.post(login_url, login_infor)
+ #   print r.headers
+    time.sleep(2)
 
 
 # get the topology ip, usually it's PC1's ip, we will use it when we excute the testing script by SSH
@@ -228,6 +245,25 @@ def get_topology_ip(file_name, UTM_ID):
     logger.info('now we get the topology ip:%s'%ip)
     return ip
 
+
+@use_logging(level="info")
+def get_testbedid_list(file_name):
+    id_list = []
+    with open(file_name, 'r') as f:
+        for line in f:
+            if "VTB" in line:
+                print line
+                print len(line)
+                if len(line) <20:
+                    id_list.append(line.strip(' ').strip('\n'))
+    return id_list
+
+
+@use_logging(level="info")
+def get_map_utm_with_testbed(file_name):
+    testbed = get_testbedid_list(file_name)
+    utm_list = get_utm_list(file_name)
+    return dict(zip(utm_list, testbed))
 
 # get all  file under the file_dir
 @use_logging(level='info')
